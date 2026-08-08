@@ -23,6 +23,7 @@ const GoogleCredentials = db.define("GoogleCredentials", {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        unique: true,
 
         references: {
             model: "Users",
