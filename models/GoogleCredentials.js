@@ -24,7 +24,6 @@ const GoogleCredentials = db.define("GoogleCredentials", {
         type: DataTypes.INTEGER,
         allowNull: false,
         unique: true,
-
         references: {
             model: "Users",
             key: "id"

@@ -5,17 +5,36 @@ const { User } = require("../models/index");
 
 
 const authMiddleware = async (req, res, next) => {
-    const sessionToken = req.cookies.sessionToken;
+    try {
 
-    if(!sessionToken) {
-        return next(generateError(401, "Unauthorized"));
-    }
+        const sessionToken = req.cookies.sessionToken;
 
-    const hashedIncomingToken = hash(sessionToken);
-
-    const matchedToken = await User.findOne({
-        where: {
-            sessionTokenHash: hashedIncomingToken
+        if (!sessionToken) {
+            return next(generateError(401, "Unauthorized"));
         }
-    })
+
+        const hashedIncomingToken = hash(sessionToken);
+
+        const matchedTokenUser = await User.findOne({
+            where: {
+                sessionTokenHash: hashedIncomingToken
+            }
+        })
+
+        if (
+            !matchedTokenUser ||
+            matchedTokenUser.sessionTokenExpiresAt <= new Date()
+        ) {
+            return next(generateError(401, "Unauthorized"));
+        }
+
+        req.user = { id: matchedTokenUser.id };
+
+        next();
+
+    } catch(err) {
+        next(err);
+    }
 }
+
+module.exports = authMiddleware;
