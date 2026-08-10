@@ -52,8 +52,36 @@ const encrypt = (token) => {
 }
 
 
+
+
+const decrypt = (str) => {
+    const splitted = str.split(":");
+
+    const encrypted = Buffer.from(splitted[0], "base64");
+    const iv = Buffer.from(splitted[1], "base64");
+    const authTag = Buffer.from(splitted[2], "base64");
+
+    const decipher = crypto.createDecipheriv(
+        ALGORITHM,
+        key,
+        iv
+    )
+
+    decipher.setAuthTag(authTag);
+
+    const decrypted = Buffer.concat([
+        decipher.update(encrypted),
+        decipher.final()
+    ]);
+
+
+    return decrypted.toString("utf8");
+}
+
+
 module.exports = {
-    encrypt
+    encrypt,
+    decrypt
 }
 
 

@@ -43,11 +43,6 @@ const GoogleCredentials = db.define("GoogleCredentials", {
         allowNull: false
     },
 
-    refreshTokenExpiresAt: {
-        type: DataTypes.DATE,
-        allowNull: true
-    },
-
     encryptedAccessToken: {
         type: DataTypes.TEXT,
         allowNull: true,

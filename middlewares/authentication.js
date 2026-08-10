@@ -21,18 +21,36 @@ const authMiddleware = async (req, res, next) => {
             }
         })
 
-        if (
-            !matchedTokenUser ||
-            matchedTokenUser.sessionTokenExpiresAt <= new Date()
-        ) {
+        
+        const cookieBody = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV.toLowerCase() !== "development",
+            sameSite: "lax",
+        }
+
+
+        if (matchedTokenUser && matchedTokenUser.sessionTokenExpiresAt <= new Date()) {
+            await matchedTokenUser.update({
+                sessionTokenHash: null,
+                sessionTokenExpiresAt: null
+            })
+
+            res.clearCookie("sessionToken", cookieBody)
+
             return next(generateError(401, "Unauthorized"));
         }
 
-        req.user = { id: matchedTokenUser.id };
+        if (!matchedTokenUser) {
+            res.clearCookie("sessionToken", cookieBody)
+
+            return next(generateError(401, "Unauthorized"));
+        }
+
+        req.user = { id: matchedTokenUser.id, email: matchedTokenUser.email }; // added email since front end might need it later
 
         next();
 
-    } catch(err) {
+    } catch (err) {
         next(err);
     }
 }

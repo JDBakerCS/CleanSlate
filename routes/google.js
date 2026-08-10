@@ -18,7 +18,7 @@ router.get("/google", (req, res, next) => {
 
     res.cookie("googleOAuthState", state, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: process.env.NODE_ENV.toLowerCase() !== "development",
         sameSite: "lax",
         maxAge: 10 * 60 * 1000
     })
@@ -45,17 +45,27 @@ router.get("/google", (req, res, next) => {
 router.get("/google/callback", async (req, res, next) => {
     try {
 
+        const cookieBody = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV.toLowerCase() !== "development",
+            sameSite: "lax",
+        }
+
         const { code, state, error } = req.query;
 
-        if(error) {
+        if (error) {
+            res.clearCookie("googleOAuthState", cookieBody);
             return next(generateError(403, 'Google sign-in was cancelled'));
         }
 
         const cookieState = req.cookies.googleOAuthState;
 
         if (state !== cookieState) {
+            res.clearCookie("googleOAuthState", cookieBody);
             return next(generateError(400, "Invalid OAuth state"));
         }
+
+        res.clearCookie("googleOAuthState", cookieBody);
 
         const { tokens } = await oauth2Client.getToken(code);
 
@@ -93,7 +103,7 @@ router.get("/google/callback", async (req, res, next) => {
                 await User.update(
                     {
                         email: payload.email
-                    }, 
+                    },
 
                     {
                         where: {
@@ -132,7 +142,7 @@ router.get("/google/callback", async (req, res, next) => {
 
         const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // Duration of 7 days
 
-        const sessionToken  = crypto.randomBytes(32).toString("hex");
+        const sessionToken = crypto.randomBytes(32).toString("hex");
         const hashedSessionToken = hash(sessionToken);
 
         const user = await User.findByPk(idOfUser);
@@ -144,7 +154,7 @@ router.get("/google/callback", async (req, res, next) => {
 
         res.cookie("sessionToken", sessionToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
+            secure: process.env.NODE_ENV.toLowerCase() !== "development",
             sameSite: "lax",
             maxAge: SESSION_DURATION
         })
