@@ -5,17 +5,54 @@ const { User } = require("../models/index");
 
 
 const authMiddleware = async (req, res, next) => {
-    const sessionToken = req.cookies.sessionToken;
+    try {
 
-    if(!sessionToken) {
-        return next(generateError(401, "Unauthorized"));
-    }
+        const sessionToken = req.cookies.sessionToken;
 
-    const hashedIncomingToken = hash(sessionToken);
-
-    const matchedToken = await User.findOne({
-        where: {
-            sessionTokenHash: hashedIncomingToken
+        if (!sessionToken) {
+            return next(generateError(401, "Unauthorized"));
         }
-    })
+
+        const hashedIncomingToken = hash(sessionToken);
+
+        const matchedTokenUser = await User.findOne({
+            where: {
+                sessionTokenHash: hashedIncomingToken
+            }
+        })
+
+        
+        const cookieBody = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV.toLowerCase() !== "development",
+            sameSite: "lax",
+        }
+
+
+        if (matchedTokenUser && matchedTokenUser.sessionTokenExpiresAt <= new Date()) {
+            await matchedTokenUser.update({
+                sessionTokenHash: null,
+                sessionTokenExpiresAt: null
+            })
+
+            res.clearCookie("sessionToken", cookieBody)
+
+            return next(generateError(401, "Unauthorized"));
+        }
+
+        if (!matchedTokenUser) {
+            res.clearCookie("sessionToken", cookieBody)
+
+            return next(generateError(401, "Unauthorized"));
+        }
+
+        req.user = { id: matchedTokenUser.id, email: matchedTokenUser.email }; // added email since front end might need it later
+
+        next();
+
+    } catch (err) {
+        next(err);
+    }
 }
+
+module.exports = authMiddleware;

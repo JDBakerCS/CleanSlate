@@ -24,7 +24,6 @@ const GoogleCredentials = db.define("GoogleCredentials", {
         type: DataTypes.INTEGER,
         allowNull: false,
         unique: true,
-
         references: {
             model: "Users",
             key: "id"
@@ -42,11 +41,6 @@ const GoogleCredentials = db.define("GoogleCredentials", {
     encryptedRefreshToken: {
         type: DataTypes.TEXT,
         allowNull: false
-    },
-
-    refreshTokenExpiresAt: {
-        type: DataTypes.DATE,
-        allowNull: true
     },
 
     encryptedAccessToken: {
