@@ -36,6 +36,21 @@ router.get("/", authMiddleware, async (req, res, next) => {
         // OAuth2 client, in modify I mean with the access token
         // set as its new credential. Acess Token that we just got from the
         // googleTokenRefresh function.
+
+
+        const gmail = google.gmail({
+            version: "v1",
+            auth: oauth2Client
+        });
+
+
+        const emailList = await gmail.users.messages.list({
+            userId: "me",
+            q: "in:inbox is:unread -is:starred older_than:14d -is:important" 
+        })
+
+        /*
+        
         const gmail = google.gmail({
             version: "v1",
             auth: oauth2Client
@@ -100,8 +115,40 @@ router.get("/", authMiddleware, async (req, res, next) => {
 
             body
         };
+        */
 
-        return res.status(200).json(email);
+        const result = [];
+
+        const messages = emailList.data.messages ?? [];
+
+        for (const message of messages) {
+            const response = await gmail.users.messages.get({
+                userId: "me",
+                id: message.id,
+                format: "metadata",
+                metadataHeaders: ["From", "Subject", "Date"]
+            });
+
+            const headers = response.data.payload?.headers ?? [];
+
+            const getHeader = (name) =>
+                headers.find(
+                    header => header.name.toLowerCase() === name.toLowerCase()
+                )?.value;
+
+            const obj = {
+                id: response.data.id,
+                from: getHeader("From"),
+                subject: getHeader("Subject"),
+                date: getHeader("Date"),
+                labels: response.data.labelIds
+            }
+
+            result.push(obj);
+        }
+
+
+        return res.json(result)
 
     } catch (err) {
 

@@ -96,13 +96,13 @@ router.get("/google/callback", async (req, res, next) => {
                 updatesObj.encryptedRefreshToken = encrypt(tokens.refresh_token);
             }
 
-            if (matchedCredentials.googleEmail !== payload.email) {
+            if (matchedCredentials.googleEmail !== payload.email.trim().toLowerCase()) {
 
-                updatesObj.googleEmail = payload.email;
+                updatesObj.googleEmail = payload.email.trim().toLowerCase();
 
                 await User.update(
                     {
-                        email: payload.email
+                        email: payload.email.trim().toLowerCase()
                     },
 
                     {
@@ -128,7 +128,7 @@ router.get("/google/callback", async (req, res, next) => {
 
             const newGoogleCredentials = await GoogleCredentials.create({
                 googleSub: payload.sub,
-                googleEmail: payload.email,
+                googleEmail: payload.email.trim().toLowerCase(),
                 userId: newUser.id,
                 displayName: payload.name,
                 encryptedRefreshToken: encrypt(tokens.refresh_token),

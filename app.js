@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const googleRouter = require("./routes/google");
 const authenticationRouter = require("./routes/auth");
 const gmailRouter = require("./routes/gmail");
+const protectedSendersRoute = require("./routes/protectedSenders");
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(morgan("dev"));
 app.use("/api/auth", googleRouter);
 app.use("/api/auth", authenticationRouter);
 app.use("/api/gmail", gmailRouter);
+app.use("/api/protected", protectedSendersRoute);
 
 
 app.get("/api/health", (req, res) => {

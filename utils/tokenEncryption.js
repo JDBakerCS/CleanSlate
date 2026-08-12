@@ -78,7 +78,6 @@ const decrypt = (str) => {
     return decrypted.toString("utf8");
 }
 
-
 module.exports = {
     encrypt,
     decrypt
