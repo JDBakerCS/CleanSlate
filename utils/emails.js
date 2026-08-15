@@ -12,14 +12,14 @@ require("dotenv").config();
 
 const allEmails = async (id) => {
 
-    const limit = pLimit(10);
+    const limit = pLimit(5);
 
-    const systemLabels = [
+    const systemLabels = new Set([
         "INBOX", "UNREAD", "STARRED", "IMPORTANT",
         "SENT", "DRAFT", "SPAM", "TRASH", "CHAT", "CATEGORY_PERSONAL",
         "CATEGORY_SOCIAL", "CATEGORY_PROMOTIONS", "CATEGORY_UPDATES",
         "CATEGORY_FORUMS"
-    ]
+    ])
 
     const oauth2Client = new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
@@ -46,15 +46,20 @@ const allEmails = async (id) => {
     });
 
 
-    const emailList = await gmail.users.messages.list({
+    /*
+     const emailList = await gmail.users.messages.list({
         userId: "me",
-        q: "in:inbox is:unread -is:starred -is:important older_than:14d"
+        q: "in:inbox is:unread -is:starred -is:important  older_than:14d" 
     });
-
+     
+    */
 
     // to make sure map will not throw error, since user might now have 
     // matching emails after the query filter, so inbox will be treated
     // as an empty array for safety instead.
+
+
+    /*
     const promises = (emailList.data.messages ?? []).map((message) => {
         return limit(() => {
             return gmail.users.messages.get({
@@ -64,9 +69,49 @@ const allEmails = async (id) => {
         })
     });
 
-    const allMessagesArr = await Promise.all(promises);
+    const allMessagesArr = await Promise.all(promises);     
+     
+    */
 
-    const formattedMessages = allMessagesArr.map((singleMessage) => {
+
+    const allThreads = [];
+
+    let pageToken;
+
+    do {
+
+        const result = await gmail.users.threads.list({
+            userId: "me",
+            q: "in:inbox is:unread older_than:14d",
+            maxResults: 100,
+            pageToken
+        });
+
+        allThreads.push(...(result.data.threads ?? []));
+
+        pageToken = result.data.nextPageToken;
+
+    } while (pageToken)
+
+
+
+    const threadPromises = (allThreads ?? []).map((thread) => {
+        return limit(() => {
+            return gmail.users.threads.get({
+                userId: "me",
+                id: thread.id,
+                format: "metadata",
+                metadataHeaders: ["From", "To", "Subject", "Date"]
+            })
+        })
+    });
+
+    const threads = await Promise.all(threadPromises);
+
+
+
+    /*
+     const formattedMessages = allMessagesArr.map((singleMessage) => {
         const message = singleMessage.data;
 
         const headers = message.payload.headers ?? [];
@@ -110,15 +155,51 @@ const allEmails = async (id) => {
             snippet: message.snippet,
 
             labels,
-
-            body
         }
+    });
+     
+    */
+
+
+    const formattedThreads = threads.map((response) => {
+        const thread = response.data;
+
+        return {
+            threadId: thread.id,
+
+            messages: thread.messages.map((message) => {
+                const headers = message.payload?.headers ?? [];
+
+                const getHeader = (name) => {
+                    return headers.find(
+                        (header) =>
+                            header.name.toLowerCase() === name.toLowerCase()
+                    )?.value ?? null;
+                };
+
+                return {
+                    id: message.id,
+                    threadId: message.threadId,
+
+                    from: getHeader("From"),
+                    to: getHeader("To"),
+                    subject: getHeader("Subject"),
+                    date: getHeader("Date"),
+
+                    snippet: message.snippet,
+                    labels: message.labelIds ?? []
+                };
+            })
+        };
     });
 
 
+
+    /*
+       
     const filteredByLabel = formattedMessages.filter(({ labels }) => {
         return !labels.some((label) => {
-            return !systemLabels.includes(label);
+            return !systemLabels.has(label);
         })
     });
 
@@ -129,4 +210,30 @@ const allEmails = async (id) => {
         messages: finalizedEmails,
         totalMessages: finalizedEmails.length
     };
+     
+    */
+
+
+    const finalResultBeforeFilter = await filterProtectedSenders(formattedThreads, id, matchingCredentials);
+
+    const finalResult = finalResultBeforeFilter.filter((thread) => {
+
+        return thread.messages.every(({ labels }) => {
+
+            return labels.every((label) => {
+                return (
+                    (label !== "IMPORTANT" && label !== "STARRED") && systemLabels.has(label)
+                )
+            })
+        })
+    });
+
+
+    return {
+        threads: finalResult,
+        totalConversations: finalResult.length
+    }
 }
+
+
+module.exports = allEmails;
