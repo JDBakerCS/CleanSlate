@@ -1,4 +1,4 @@
-const { encrypt, decrypt } = require("./tokenEncryption");
+const { encrypt, decrypt } = require("../utils/tokenEncryption");
 const { google } = require("googleapis");
 require("dotenv").config();
 

@@ -1,8 +1,7 @@
 const User = require("./User");
 const GoogleCredentials = require("./GoogleCredentials");
 const ProtectedSender = require("./ProtectedSender")
-const Scan = require("./Scan")
-const ScanItem = require("./ScanItem")
+const ClassificationRun = require("./ClassificationRun")
 
 
 User.hasOne(GoogleCredentials, {
@@ -17,26 +16,6 @@ GoogleCredentials.belongsTo(User, {
 })
 
 
-User.hasMany(Scan, {
-    foreignKey: "userId",
-    as: "scans"
-})
-
-Scan.belongsTo(User, {
-    foreignKey: "userId",
-    as: "user"
-})
-
-Scan.hasMany(ScanItem, {
-    foreignKey: "scanId",
-    as: "items"
-})
-
-ScanItem.belongsTo(Scan, {
-    foreignKey: "scanId",
-    as: "scan"
-})
-
 User.hasMany(ProtectedSender, {
     foreignKey: "userId",
     as: "protectedSenders"
@@ -47,10 +26,20 @@ ProtectedSender.belongsTo(User, {
     as: "user"
 })
 
+
+User.hasMany(ClassificationRun, {
+    foreignKey: "userId",
+    as: "classificationRuns"
+})
+
+ClassificationRun.belongsTo(User, {
+    foreignKey: "userId",
+    as: "user"
+})
+
 module.exports = {
     User,
     GoogleCredentials,
     ProtectedSender,
-    Scan,
-    ScanItem,
+    ClassificationRun,
 }

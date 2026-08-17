@@ -2,7 +2,7 @@ const { google } = require("googleapis");
 const { GoogleCredentials } = require("../models/index");
 const pLimit = require("p-limit");
 const googleTokenRefresh = require("./googleTokenRefresh");
-const filterProtectedSenders = require("./filterMessages");
+const filterProtectedSenders = require("../utils/filterMessages");
 require("dotenv").config();
 
 
@@ -19,7 +19,7 @@ const allEmails = async (id) => {
         "SENT", "DRAFT", "SPAM", "TRASH", "CHAT", "CATEGORY_PERSONAL",
         "CATEGORY_SOCIAL", "CATEGORY_PROMOTIONS", "CATEGORY_UPDATES",
         "CATEGORY_FORUMS"
-    ])
+    ]);
 
     const oauth2Client = new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
@@ -74,6 +74,25 @@ const allEmails = async (id) => {
     */
 
 
+    const labelsData = await gmail.users.labels.list({
+        userId: "me"
+    });
+
+    const labels = labelsData.data.labels;
+
+    const formattedLabels = labels.filter((label) => {
+
+        if (label.type === "user") {
+            return {
+                id: label.id,
+                name: label.name,
+                type: label.type
+            }
+        }
+    });
+
+
+
     const allThreads = [];
 
     let pageToken;
@@ -82,7 +101,7 @@ const allEmails = async (id) => {
 
         const result = await gmail.users.threads.list({
             userId: "me",
-            q: "in:inbox is:unread older_than:14d",
+            q: "in:inbox is:unread older_than:14d", 
             maxResults: 100,
             pageToken
         });
@@ -91,7 +110,7 @@ const allEmails = async (id) => {
 
         pageToken = result.data.nextPageToken;
 
-    } while (pageToken)
+    } while (pageToken);
 
 
 
@@ -229,9 +248,30 @@ const allEmails = async (id) => {
     });
 
 
+    // Leaves less data specifically for the Gemini, and token usage.
+    const forGemini = finalResult.map((thread) => {
+
+        return {
+            threadId: thread.threadId,
+
+            messages: thread.messages.map((message) => {
+
+                return {
+                    from: message.from,
+                    to: message.to,
+                    subject: message.subject,
+                    date: message.date,
+                    snippet: message.snippet
+                }
+            })
+        }
+    })
+
     return {
         threads: finalResult,
-        totalConversations: finalResult.length
+        totalConversations: finalResult.length,
+        forGemini: forGemini,
+        labels: formattedLabels
     }
 }
 
