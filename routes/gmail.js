@@ -17,6 +17,27 @@ router.get("/", authMiddleware, async (req, res, next) => {
         // AI integration part and the result returned from it.
         const result = await geminiIntegration(returned.forGemini, returned.labels);
 
+        // Gemini only ever saw stripped-down thread data and only returns
+        // threadId + confidenceScore, so attach the actual emails back on
+        // using the full thread data already fetched above.
+        const threadsById = new Map(returned.threads.map((thread) => [thread.threadId, thread]));
+
+        result.categories.forEach((category) => {
+            category.threadIds = category.threadIds.map(({ threadId, confidenceScore }) => {
+                const fullThread = threadsById.get(threadId);
+
+                const messages = fullThread
+                    ? fullThread.messages.map(({ threadId, labels, ...rest }) => rest)
+                    : [];
+
+                return {
+                    threadId,
+                    confidenceScore,
+                    messages
+                };
+            });
+        });
+
         const newClassificationRun = await ClassificationRun.create({
             userId: req.user.id,
             result: result

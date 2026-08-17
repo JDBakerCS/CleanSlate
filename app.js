@@ -6,6 +6,7 @@ const googleRouter = require("./routes/google");
 const authenticationRouter = require("./routes/auth");
 const gmailRouter = require("./routes/gmail");
 const protectedSendersRoute = require("./routes/protectedSenders");
+const usersChoiceRoute = require("./routes/usersDecision");
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use("/api/auth", googleRouter);
 app.use("/api/auth", authenticationRouter);
 app.use("/api/gmail", gmailRouter);
 app.use("/api/protected", protectedSendersRoute);
+app.use("/api/gmail/categories", usersChoiceRoute);
 
 
 app.get("/api/health", (req, res) => {
