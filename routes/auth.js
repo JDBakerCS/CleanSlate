@@ -71,7 +71,7 @@ router.post("/logout", authMiddleware, async (req, res, next) => {
         res.clearCookie("sessionToken", {
             httpOnly: true,
             secure: process.env.NODE_ENV.toLowerCase() !== "development",
-            sameSite: "lax",
+            sameSite: "lax"
         })
 
         res.sendStatus(204);

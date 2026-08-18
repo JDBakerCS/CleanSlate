@@ -12,6 +12,7 @@ const googleTokenRefresh = async (row) => {
     );
 
     const BUFFER = 2 * 60 * 1000;
+    const REFRESH_TIMEOUT = 10 * 1000;
 
     if (Date.now() >= row.accessTokenExpiresAt.getTime() - BUFFER) {
         try {
@@ -19,7 +20,13 @@ const googleTokenRefresh = async (row) => {
                 refresh_token: decrypt(row.encryptedRefreshToken)
             });
 
-            const { token } = await oauth2Client.getAccessToken();
+            const { token } = await Promise.race([
+                oauth2Client.getAccessToken(),
+
+                new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error("Google token refresh timed out")), REFRESH_TIMEOUT);
+                })
+            ]);
             const expirationDate = oauth2Client.credentials.expiry_date;
 
             await row.update({
