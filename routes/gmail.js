@@ -1,10 +1,9 @@
 const express = require("express");
-const { google } = require("googleapis");
 const authMiddleware = require("../middlewares/authentication");
-const { GoogleCredentials } = require("../models/index");
-const googleTokenRefresh = require("../utils/googleTokenRefresh");
-require("dotenv").config();
-
+const allEmails = require("../services/emails");
+const ai = require("../config/gemini");
+const geminiIntegration = require("../services/geminiService");
+const { ClassificationRun } = require("../models/index");
 
 const router = express.Router();
 
@@ -12,103 +11,50 @@ const router = express.Router();
 router.get("/", authMiddleware, async (req, res, next) => {
     try {
 
-        const oauth2Client = new google.auth.OAuth2(
-            process.env.GOOGLE_CLIENT_ID,
-            process.env.GOOGLE_CLIENT_SECRET,
-            process.env.GOOGLE_REDIRECT_URI
-        );
+        // first and second stage filter and its results.
+        const returned = await allEmails(req.user.id);
 
-        const id = req.user.id;
+        // AI integration part and the result returned from it.
+        const result = await geminiIntegration(returned.forGemini, returned.labels);
 
-        const matchingCredentials = await GoogleCredentials.findOne({
-            where: {
-                userId: id
-            }
+        // Gemini only ever saw stripped-down thread data and only returns
+        // threadId + confidenceScore, so attach the actual emails back on
+        // using the full thread data already fetched above.
+        const threadsById = new Map(returned.threads.map((thread) => [thread.threadId, thread]));
+
+        result.categories.forEach((category) => {
+            category.threadIds = category.threadIds.map(({ threadId, confidenceScore }) => {
+                const fullThread = threadsById.get(threadId);
+
+                const messages = fullThread
+                    ? fullThread.messages.map(({ threadId, labels, ...rest }) => rest)
+                    : [];
+
+                return {
+                    threadId,
+                    confidenceScore,
+                    messages
+                };
+            });
         });
 
-        const rawAccessToken = await googleTokenRefresh(matchingCredentials);
-
-        oauth2Client.setCredentials({
-            access_token: rawAccessToken
+        const newClassificationRun = await ClassificationRun.create({
+            userId: req.user.id,
+            result: result
         });
 
-        // Creating gmail client as well and giving it the modified 
-        // OAuth2 client, in modify I mean with the access token
-        // set as its new credential. Acess Token that we just got from the
-        // googleTokenRefresh function.
-        const gmail = google.gmail({
-            version: "v1",
-            auth: oauth2Client
-        });
-
-
-        // Only the test case this is not supposed to go in the 
-        // real code, had to do it to make sure 
-        // that I could get specific email and format it as we needed.
-
-        const response = await gmail.users.messages.get({
-            userId: "me",
-            id: "19fd2c2fc30c6325"
-        });
-
-        const message = response.data;
-
-        const headers = message.payload.headers ?? [];
-        const labels = message.labelIds ?? [];
-
-        const from = headers.find(
-            header => header.name === "From"
-        )?.value ?? null;
-
-        const subject = headers.find(
-            header => header.name === "Subject"
-        )?.value ?? null;
-
-        const date = headers.find(
-            header => header.name === "Date"
-        )?.value ?? null;
-
-        const plainTextPart = message.payload.parts?.find(
-            part => part.mimeType === "text/plain"
-        );
-
-        let body = null;
-
-        if (plainTextPart?.body?.data) {
-            body = Buffer.from(
-                plainTextPart.body.data,
-                "base64url"
-            ).toString("utf-8");
-        }
-
-        const email = {
-            id: message.id,
-            threadId: message.threadId,
-
-            from,
-            subject,
-            date,
-
-            snippet: message.snippet,
-
-            labels,
-
-            isRead: !labels.includes("UNREAD"),
-            isStarred: labels.includes("STARRED"),
-            isImportant: labels.includes("IMPORTANT"),
-            isInInbox: labels.includes("INBOX"),
-
-            body
+        const formattedResult = {
+            runId: newClassificationRun.id,
+            categories: result.categories
         };
 
-        return res.status(200).json(email);
+        res.status(200).json(formattedResult)
 
     } catch (err) {
 
-        next(err)
+        next(err);
     }
 })
-
 
 
 module.exports = router;
