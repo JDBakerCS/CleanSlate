@@ -44,7 +44,6 @@ router.get("/", authMiddleware, async (req, res, next) => {
         });
 
         const formattedResult = {
-            labels: result.labels,
             runId: newClassificationRun.id,
             categories: result.categories
         };

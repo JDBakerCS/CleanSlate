@@ -89,7 +89,6 @@ const geminiIntegration = async (geminiThreads, labelsList) => {
     })
 
     return {
-        labels,
         categories: formatted
     }
 }
