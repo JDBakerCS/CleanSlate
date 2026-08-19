@@ -7,8 +7,14 @@ const { User } = require("../models/index");
 const authMiddleware = async (req, res, next) => {
     try {
 
-        const sessionToken = req.cookies.sessionToken;
+        const authHeader = req.headers.authorization;
+        const bearerToken = authHeader && authHeader.startsWith("Bearer ")
+            ? authHeader.slice("Bearer ".length)
+            : null;
 
+        // Cookie for the React page, bearer token for the extension.
+        const sessionToken = bearerToken || req.cookies.sessionToken;
+        
         if (!sessionToken) {
             return next(generateError(401, "Unauthorized"));
         }

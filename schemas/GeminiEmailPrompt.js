@@ -88,6 +88,8 @@ For example:
 - An Amazon promotional sale email may belong to Promotions.
 - An Amazon order confirmation or delivery update may belong to Shopping.
 
+Software tools and platforms often send onboarding tips, "getting started" guides, or feature announcements about their own product. This is not Education, even when it uses words like "tutorial" or "tips." A design tool's email showing you how to use its own canvas belongs with its other product communications (for example, Promotions), not with genuine courses, classes, assignments, or learning-platform content. Reserve Education for communications whose actual purpose is teaching or training the user in a subject, not a tool teaching the user its own interface.
+
 Determine why the communication was sent and what type of communication it represents.
 
 

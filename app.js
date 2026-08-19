@@ -44,4 +44,13 @@ app.get("/api/health", (req, res) => {
 })
 
 
+app.use((err, req, res, next) => {
+    console.error(err);
+
+    res.status(err.status || 500).json({
+        message: err.message || "Something went wrong, try again"
+    });
+});
+
+
 module.exports = app;
