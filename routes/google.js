@@ -159,13 +159,32 @@ router.get("/google/callback", async (req, res, next) => {
             maxAge: SESSION_DURATION
         })
 
-        // TODO: once the extension UI exists, this needs to actually tell the
-        // extension "hey, auth is done" - right now it's just a JSON blob
-        // sitting in a browser tab that nothing is watching. Options later:
-        // close the tab automatically and let the extension notice, or
-        // redirect to a page the extension is watching for, or just switch to
-        // chrome.identity.launchWebAuthFlow which handles this for us.
-        res.json({ success: true });
+        // Hands the session token to the extension via chrome.runtime.sendMessage,
+        // which Chrome only exposes on this page because the extension's manifest
+        // lists our origin under externally_connectable. Requests from the plain
+        // React page land here too and already work via the cookie set above.
+        // background.js closes this tab once it receives the message - a page
+        // can't close a tab it didn't open itself via window.open().
+        const extensionId = process.env.EXTENSION_ORIGIN
+            ? process.env.EXTENSION_ORIGIN.replace("chrome-extension://", "")
+            : null;
+
+        res.send(`<!DOCTYPE html>
+<html>
+  <body>
+    <p>Signed in. You can close this tab.</p>
+    <script>
+      (function () {
+        var token = ${JSON.stringify(sessionToken)};
+        var extensionId = ${JSON.stringify(extensionId)};
+
+        if (extensionId && window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
+          chrome.runtime.sendMessage(extensionId, { type: "CLEANSLATE_AUTH_SUCCESS", token: token });
+        }
+      })();
+    </script>
+  </body>
+</html>`);
 
     } catch (err) {
         next(err);
