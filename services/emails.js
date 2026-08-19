@@ -114,18 +114,37 @@ const allEmails = async (id) => {
 
 
 
-    const threadPromises = (allThreads ?? []).map((thread) => {
-        return limit(() => {
-            return gmail.users.threads.get({
-                userId: "me",
-                id: thread.id,
-                format: "metadata",
-                metadataHeaders: ["From", "To", "Subject", "Date"]
-            })
-        })
-    });
+    // pLimit only caps how many requests are in flight at once, not how many
+    // happen per minute - for a large inbox that alone can still blow past
+    // Gmail's per-user quota, so threads are also fetched in paced chunks.
+    const CHUNK_SIZE = 20;
+    const CHUNK_DELAY = 1000;
 
-    const threads = await Promise.all(threadPromises);
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    const threads = [];
+
+    for (let i = 0; i < allThreads.length; i += CHUNK_SIZE) {
+        const chunk = allThreads.slice(i, i + CHUNK_SIZE);
+
+        const chunkPromises = chunk.map((thread) => {
+            return limit(() => {
+                return gmail.users.threads.get({
+                    userId: "me",
+                    id: thread.id,
+                    format: "metadata",
+                    metadataHeaders: ["From", "To", "Subject", "Date"]
+                })
+            })
+        });
+
+        const chunkResults = await Promise.all(chunkPromises);
+        threads.push(...chunkResults);
+
+        if (i + CHUNK_SIZE < allThreads.length) {
+            await delay(CHUNK_DELAY);
+        }
+    }
 
 
 
