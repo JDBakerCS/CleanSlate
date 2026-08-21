@@ -7,6 +7,10 @@ const geminiIntegration = async (geminiThreads, labelsList) => {
 
     const BATCH_LENGTH = 50;
 
+    // Keep Gemini batch starts at five calls per minute while counting
+    // the previous request's processing time toward the 12-second interval.
+    const MIN_BATCH_INTERVAL_MS = 12000;
+
     const batches = [];
 
 
@@ -30,6 +34,8 @@ const geminiIntegration = async (geminiThreads, labelsList) => {
     const resultArr = [];
 
     for (let i = 0; i < batches.length; i++) {
+
+        const batchStartedAt = Date.now();
 
         const geminiRes = await geminiPrompting(labels, batches[i]);
 
@@ -56,7 +62,12 @@ const geminiIntegration = async (geminiThreads, labelsList) => {
 
         labels.push(...newLabels);
 
-        if (i !== batches.length - 1) await delay(12000);
+        if (i !== batches.length - 1) {
+            const elapsedTime = Date.now() - batchStartedAt;
+            const remainingDelay = Math.max(0, MIN_BATCH_INTERVAL_MS - elapsedTime);
+
+            await delay(remainingDelay);
+        }
     }
 
 
