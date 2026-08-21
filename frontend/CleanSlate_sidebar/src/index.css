@@ -1,0 +1,316 @@
+:root {
+    font-family: Arial, Helvetica, sans-serif;
+
+    --color-background: #202124;
+    --color-surface: #292a2d;
+
+    --color-primary: #8ab4f8;
+    --color-primary-hover: #aecbfa;
+
+    --color-glow-blue: #4285f4;
+    --color-glow-red: #ea4335;
+    --color-glow-yellow: #fbbc04;
+    --color-glow-green: #34a853;
+
+    --color-text: #e8eaed;
+    --color-muted: #bdc1c6;
+    --color-border: #5f6368;
+    --color-success: #81c995;
+
+    color: var(--color-text);
+    background-color: var(--color-background);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    background-color: var(--color-background);
+}
+
+/* Shared styling for the application's button classes */
+.login-btn,
+.logout-btn,
+.scan-btn,
+.summary-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+
+    font: inherit;
+    font-weight: 600;
+
+    color: #202124;
+    background-color: var(--color-primary);
+    cursor: pointer;
+}
+
+.login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+    max-width: 380px;
+    min-height: 46px;
+    margin-inline: auto;
+    box-shadow: 0 5px 16px rgb(66 133 244 / 25%);
+    transition:
+        background-color 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease;
+}
+
+.login-btn:hover {
+    box-shadow: 0 7px 20px rgb(66 133 244 / 35%);
+    transform: translateY(-1px);
+}
+
+.login-btn:hover,
+.logout-btn:hover,
+.scan-btn:hover,
+.summary-btn:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.login-btn:focus-visible,
+.logout-btn:focus-visible,
+.scan-btn:focus-visible,
+.summary-btn:focus-visible {
+    outline: 3px solid #aecbfa;
+    outline-offset: 2px;
+}
+
+/* Main responsive side-panel container */
+.app-shell {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+
+    margin: 0 auto;
+    padding: clamp(0.75rem, 4vw, 1.5rem);
+
+    text-align: center;
+}
+
+.app-shell:has(.login-btn) {
+    background:
+        radial-gradient(circle at 50% 12%, rgb(66 133 244 / 16%), transparent 38%),
+        var(--color-background);
+}
+
+.app-shell:has(.login-btn) .navbar {
+    justify-content: center;
+}
+
+.app-shell:has(.login-btn) .main-content {
+    max-width: 430px;
+    margin: 1.25rem auto 0;
+    padding: clamp(1.2rem, 5vw, 1.75rem);
+
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+
+    background:
+        linear-gradient(145deg, rgb(138 180 248 / 8%), transparent 45%),
+        var(--color-surface);
+    box-shadow: 0 12px 30px rgb(0 0 0 / 28%);
+}
+
+.app-shell:has(.login-btn) .hero-stage {
+    margin: 0 auto 1.5rem;
+}
+
+.header {
+    margin: 0 0 0.25rem;
+
+    color: var(--color-primary);
+    font-size: clamp(1.4rem, 6vw, 1.8rem);
+}
+
+.account-status {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
+    margin: 0;
+
+    color: var(--color-muted);
+    font-size: 0.72rem;
+    text-align: left;
+    overflow-wrap: anywhere;
+}
+
+.account-status::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--color-success);
+    box-shadow: 0 0 8px rgb(129 201 149 / 55%);
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+
+    padding: 0.25rem 0 0.9rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.navbar-brand {
+    color: var(--color-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-shadow: 0 0 18px rgb(66 133 244 / 22%);
+}
+
+.nav-btn {
+    padding: 0.45rem 0.7rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+
+    color: var(--color-text);
+    background: transparent;
+    font-size: 0.78rem;
+}
+
+.nav-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: rgb(138 180 248 / 10%);
+}
+
+.hero-stage {
+    display: grid;
+    max-width: 440px;
+    margin: 1.75rem auto 1.5rem;
+    position: relative;
+}
+
+.hero-intro {
+    grid-area: 1 / 1;
+
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+
+    transition:
+        opacity 400ms ease,
+        transform 400ms ease;
+}
+
+.hero-intro--active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.hero-intro:not(.hero-intro--active) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+}
+
+.eyebrow {
+    margin: 0 0 0.65rem;
+
+    color: var(--color-primary);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.hero-title {
+    margin: 0 0 1rem;
+
+    color: var(--color-text);
+    font-size: clamp(1.7rem, 7vw, 2.25rem);
+    line-height: 1.12;
+}
+
+.description {
+    max-width: 42ch;
+    margin: 0 auto;
+
+    color: var(--color-muted);
+    font-size: 0.88rem;
+    line-height: 1.55;
+}
+
+.account-actions {
+    order: -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0.9rem 0 0;
+    padding: 0.45rem 0.7rem;
+
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+
+    background: var(--color-surface);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
+}
+
+.app-shell:has(.account-actions) .main-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.logout-btn {
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--color-border);
+
+    color: var(--color-muted);
+    background: transparent;
+    white-space: nowrap;
+}
+
+.logout-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: rgb(138 180 248 / 10%);
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .login-btn {
+        transition: none;
+    }
+
+    .login-btn:hover {
+        transform: none;
+    }
+
+    .hero-intro {
+        transition: none;
+        transform: none;
+    }
+}
+
+@media (max-width: 350px) {
+    .account-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .logout-btn {
+        width: 100%;
+    }
+}

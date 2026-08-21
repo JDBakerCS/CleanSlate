@@ -1,0 +1,28 @@
+/*
+ * Shared classification colors.
+ * Components receive --category-color by using category-theme together with
+ * the class matching the category id.
+ */
+.category-theme {
+    --category-color: var(--color-primary);
+}
+
+.category-theme--educational {
+    --category-color: var(--color-glow-green);
+}
+
+.category-theme--promotions {
+    --category-color: var(--color-glow-yellow);
+}
+
+.category-theme--newsletters {
+    --category-color: var(--color-glow-blue);
+}
+
+.category-theme--social {
+    --category-color: #d66ec2;
+}
+
+.category-theme--low-priority {
+    --category-color: #9aa0a6;
+}

@@ -1,0 +1,166 @@
+/* Registers the angle animated by the loading comet. */
+@property --glow-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+
+.scan-card {
+    position: relative;
+    isolation: isolate;
+    z-index: 0;
+
+    display: grid;
+    place-items: center;
+
+    width: 90%;
+    max-width: 380px;
+    min-height: 125px;
+    margin-inline: auto;
+    padding: clamp(0.75rem, 4vw, 1.1rem);
+
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-surface);
+    box-shadow: 0 4px 14px rgb(0 0 0 / 35%);
+
+    text-align: center;
+}
+
+/* Adds a thin, muted Google-colored border only while scanning. */
+.scan-card--scanning {
+    border-color: transparent;
+    background:
+        linear-gradient(var(--color-surface),
+            var(--color-surface)) padding-box,
+        conic-gradient(from 45deg,
+            rgb(66 133 244 / 65%),
+            rgb(234 67 53 / 65%),
+            rgb(251 188 4 / 65%),
+            rgb(52 168 83 / 65%),
+            rgb(66 133 244 / 65%)) border-box;
+}
+
+/* Creates a three-pixel ring outside the card for the moving comet. */
+.scan-card::before {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    z-index: -1;
+
+    padding: 3px;
+    border-radius: 15px;
+    background: transparent;
+    pointer-events: none;
+
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+.scan-card--scanning::before {
+    background: conic-gradient(from var(--glow-angle),
+            transparent 0deg 300deg,
+            rgb(234 67 53 / 10%) 310deg,
+            rgb(251 188 4 / 25%) 322deg,
+            rgb(52 168 83 / 40%) 334deg,
+            rgb(66 133 244 / 70%) 346deg,
+            var(--color-primary-hover) 354deg,
+            rgb(66 133 244 / 35%) 358deg,
+            transparent 360deg);
+
+    filter:
+        drop-shadow(0 0 3px rgb(66 133 244 / 80%)) drop-shadow(0 0 7px rgb(66 133 244 / 40%));
+
+    animation:
+        rotate-glow var(--comet-duration, 1.6s)
+        linear infinite;
+}
+
+.scan-card>* {
+    width: 100%;
+    animation: scan-content-fade-in 400ms ease-out;
+}
+
+.scan-card p {
+    margin-top: 0;
+}
+
+/* Layers every scan-stage message in the same location. */
+.scan-stage {
+    display: grid;
+    place-items: center;
+    min-height: 2rem;
+}
+
+/* Messages remain layered so the old and new text can cross-fade. */
+.scan-stage-message {
+    grid-area: 1 / 1;
+    width: 100%;
+    margin: 0;
+
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+        opacity 800ms ease-in-out,
+        transform 800ms ease-in-out;
+
+    pointer-events: none;
+}
+
+.scan-stage-message--active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.scan-btn,
+.summary-btn {
+    width: 100%;
+}
+
+.scan-complete {
+    color: var(--color-success);
+    font-weight: 700;
+}
+
+.scan-error {
+    color: var(--color-glow-red);
+    font-weight: 700;
+}
+
+@keyframes rotate-glow {
+    to {
+        --glow-angle: 360deg;
+    }
+}
+
+@keyframes scan-content-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .scan-card--scanning::before,
+    .scan-card>* {
+        animation: none;
+    }
+
+    .scan-card--scanning::before {
+        filter: none;
+    }
+
+    .scan-stage-message {
+        transition: none;
+        transform: none;
+    }
+}

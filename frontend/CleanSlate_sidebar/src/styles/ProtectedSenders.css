@@ -1,0 +1,218 @@
+.protected-senders {
+  max-width: 440px;
+  margin: 1.5rem auto 0;
+  text-align: left;
+}
+
+.protected-back-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.protected-back-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-hover);
+  background: rgb(138 180 248 / 10%);
+}
+
+.protected-senders__header {
+  margin: 1.25rem 0;
+}
+
+.protected-senders__header .eyebrow {
+  margin-bottom: 0.5rem;
+}
+
+.protected-senders__header h1 {
+  margin: 0 0 0.65rem;
+  color: var(--color-text);
+  font-size: clamp(1.6rem, 7vw, 2rem);
+  line-height: 1.15;
+}
+
+.protected-senders__header > p:last-child {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.protected-form {
+  display: grid;
+  gap: 0.55rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+}
+
+.protected-form label {
+  color: var(--color-text);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.protected-form input {
+  width: 100%;
+  margin-bottom: 0.45rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  background: var(--color-background);
+  font: inherit;
+}
+
+.protected-form input:focus-visible {
+  border-color: var(--color-primary);
+  outline: 2px solid rgb(138 180 248 / 35%);
+  outline-offset: 1px;
+}
+
+.protected-add-btn {
+  min-height: 42px;
+  border: 0;
+  border-radius: 8px;
+  color: #202124;
+  background: var(--color-primary);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.protected-add-btn:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.protected-add-btn:disabled,
+.protected-remove-btn:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.protected-error {
+  margin: 0.85rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--color-glow-red);
+  border-radius: 8px;
+  color: #f6aea8;
+  background: rgb(234 67 53 / 10%);
+  font-size: 0.8rem;
+}
+
+.protected-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1.4rem 0 0.65rem;
+}
+
+.protected-list-heading h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.protected-list-heading span {
+  min-width: 1.75rem;
+  padding: 0.2rem 0.45rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.protected-list-message {
+  margin: 0;
+  padding: 1rem;
+  border: 1px dashed var(--color-border);
+  border-radius: 10px;
+  color: var(--color-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.protected-list {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.protected-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.8rem;
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-glow-green);
+  border-radius: 10px;
+  background: var(--color-surface);
+}
+
+.protected-list__item div {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.protected-list__item strong,
+.protected-list__item span {
+  overflow-wrap: anywhere;
+}
+
+.protected-list__item strong {
+  color: var(--color-text);
+  font-size: 0.86rem;
+}
+
+.protected-list__item span {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.protected-remove-btn {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-glow-red);
+  border-radius: 7px;
+  color: #f6aea8;
+  background: transparent;
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.protected-remove-btn:hover:not(:disabled) {
+  background: rgb(234 67 53 / 12%);
+}
+
+.protected-back-btn:focus-visible,
+.protected-add-btn:focus-visible,
+.protected-remove-btn:focus-visible {
+  outline: 3px solid #aecbfa;
+  outline-offset: 2px;
+}
+
+@media (max-width: 350px) {
+  .protected-list__item {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .protected-remove-btn {
+    width: 100%;
+  }
+}

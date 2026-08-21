@@ -1,0 +1,342 @@
+.category-details {
+    width: 100%;
+    margin-top: 1rem;
+    text-align: left;
+}
+
+.category-details__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.category-details__actions .back-btn {
+    margin: 0;
+    padding: 0.45rem 0.7rem;
+
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+
+    color: var(--color-muted);
+    background: transparent;
+    font: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+}
+
+.category-details__actions .back-btn:hover {
+    border-color: var(--category-color);
+    color: var(--category-color);
+}
+
+.selected-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    margin-left: auto;
+}
+
+.accept-selected-btn,
+.keep-selected-btn,
+.trash-selected-btn {
+    padding: 0.45rem 0.65rem;
+    border-radius: 7px;
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        background-color 180ms ease,
+        border-color 180ms ease,
+        color 180ms ease,
+        filter 180ms ease;
+}
+
+.accept-selected-btn {
+    border: 1px solid var(--color-success);
+    color: #202124;
+    background: var(--color-success);
+}
+
+.accept-selected-btn:hover:not(:disabled) {
+    filter: brightness(1.08);
+}
+
+.keep-selected-btn {
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    background: transparent;
+}
+
+.keep-selected-btn:hover:not(:disabled) {
+    color: #202124;
+    background: var(--color-primary);
+}
+
+.trash-selected-btn {
+    border: 1px solid var(--color-glow-red);
+    color: var(--color-glow-red);
+    background: transparent;
+}
+
+.trash-selected-btn:hover:not(:disabled) {
+    color: #202124;
+    background: var(--color-glow-red);
+}
+
+.accept-selected-btn:disabled,
+.keep-selected-btn:disabled,
+.trash-selected-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.accept-selected-btn:focus-visible,
+.keep-selected-btn:focus-visible,
+.trash-selected-btn:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+}
+
+.category-details__header {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--category-color);
+}
+
+.category-details__header h2 {
+    margin: 0 0 0.45rem;
+    color: var(--category-color);
+    font-size: 1.5rem;
+}
+
+.category-details__header strong {
+    color: var(--color-text);
+    font-size: 0.78rem;
+}
+
+.category-details__email-total {
+    margin: 0.3rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.75rem;
+}
+
+.selection-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0.8rem 0 0.25rem;
+    padding: 0.55rem 0.65rem;
+
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+
+    color: var(--color-muted);
+    background: var(--color-surface);
+    font-size: 0.75rem;
+}
+
+.selection-toolbar label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+}
+
+.selection-toolbar input,
+.email-select-checkbox {
+    width: 0.95rem;
+    height: 0.95rem;
+    margin: 0;
+    accent-color: var(--category-color);
+    cursor: pointer;
+}
+
+.email-list {
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    overflow: hidden;
+    list-style: none;
+}
+
+.email-list__item {
+    min-height: 54px;
+    padding: 0.7rem 0.65rem;
+    border-bottom: 1px solid rgb(95 99 104 / 45%);
+    transition: background-color 180ms ease;
+}
+
+.email-list__item:last-child {
+    border-bottom: 0;
+}
+
+.email-list__item:hover {
+    background: rgb(138 180 248 / 6%);
+}
+
+.email-list__item:has(.email-select-checkbox:checked) {
+    background: rgb(138 180 248 / 12%);
+    box-shadow: inset 3px 0 0 var(--category-color);
+}
+
+/* Keeps the conversation checkbox and dropdown side by side. */
+.email-list__row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 0.5rem;
+}
+
+.email-select-checkbox {
+    margin-top: 0.15rem;
+}
+
+.email-details {
+    min-width: 0;
+}
+
+.email-list__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.email-list__heading strong {
+    overflow: hidden;
+
+    color: var(--color-text);
+    font-size: 0.78rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.email-list__heading time {
+    flex-shrink: 0;
+    color: var(--color-muted);
+    font-size: 0.68rem;
+}
+
+.email-list__subject {
+    overflow: hidden;
+
+    margin: 0.25rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.76rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Makes the entire collapsed email heading clickable. */
+.email-details__summary {
+    position: relative;
+    padding-right: 1.5rem;
+
+    list-style: none;
+    cursor: pointer;
+}
+
+/* Removes Chrome's default triangle beside a <summary>. */
+.email-details__summary::-webkit-details-marker {
+    display: none;
+}
+
+/*
+ * Creates our own expand indicator.
+ * Absolute positioning keeps it on the right side of the row.
+ */
+.email-details__summary::after {
+    content: "+";
+    position: absolute;
+    top: 50%;
+    right: 0.25rem;
+
+    color: var(--category-color);
+    font-size: 1rem;
+    transform: translateY(-50%);
+}
+
+/* Changes the plus to a minus while the <details> element is open. */
+.email-details[open] .email-details__summary::after {
+    content: "−";
+}
+
+/* Shows keyboard users which email row currently has focus. */
+.email-details__summary:focus-visible {
+    border-radius: 4px;
+    outline: 2px solid var(--category-color);
+    outline-offset: 3px;
+}
+
+/*
+ * EmailListItem uses a <span> for the subject.
+ * display: block allows width, margin, and ellipsis rules to work.
+ */
+.email-list__subject {
+    display: block;
+}
+
+.conversation-message-count {
+    display: inline-block;
+    margin-top: 0.35rem;
+    padding: 0.12rem 0.4rem;
+
+    border: 1px solid var(--category-color);
+    border-radius: 999px;
+
+    color: var(--category-color);
+    font-size: 0.66rem;
+}
+
+/* Styles the Gmail-supplied snippet revealed by the dropdown. */
+.email-list__snippet {
+    margin: 0.65rem 0 0;
+    padding: 0.65rem;
+
+    border-left: 2px solid var(--category-color);
+    border-radius: 4px;
+
+    color: var(--color-muted);
+    background: rgb(138 180 248 / 7%);
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
+.email-confidence {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0.45rem 0 0;
+
+    color: var(--color-muted);
+    font-size: 0.68rem;
+}
+
+.email-confidence strong {
+    color: var(--category-color);
+}
+
+/* Adds a little breathing room below an expanded snippet. */
+.email-details[open] {
+    padding-bottom: 0.15rem;
+}
+
+@media (max-width: 360px) {
+    .selected-actions {
+        width: 100%;
+        justify-content: flex-start;
+        margin-left: 0;
+    }
+
+    .selection-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.45rem;
+    }
+}
