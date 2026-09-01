@@ -1,3 +1,6 @@
+
+<img width="1920" height="1020" alt="Screenshot 2026-09-01 114003" src="https://github.com/user-attachments/assets/86b021cc-e1bf-4477-8e98-ac9213e0ebbc" />
+
 # CleanSlate
 
 CleanSlate is a Chrome extension that scans a Gmail inbox, classifies cleanup
